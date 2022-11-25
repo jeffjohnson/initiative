@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "DGMFIQc125yJdNJqbJGa8MKp+l+/Rm3diBnp+MRR212aFWVMcutaRS2vH1nsegxLABXfqnsfv8tuW5KJ5K4xgQ==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\johnsoje\\Code\\utility\\initiative\\initiative.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\johnsoje\\.nuget\\packages\\spectre.console\\0.45.1-preview.0.41\\spectre.console.0.45.1-preview.0.41.nupkg.sha512",
+    "C:\\Users\\johnsoje\\.nuget\\packages\\system.memory\\4.5.5\\system.memory.4.5.5.nupkg.sha512"
+  ],
+  "logs": []
+}
