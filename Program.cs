@@ -2,6 +2,7 @@
 using System.IO;
 using System.Text.Json;
 using Initiative.Classes;
+using Initiative.Classes.Screens;
 using Spectre.Console;
 
 
@@ -14,26 +15,29 @@ namespace Initiative
         
         static void Main(string[] args)
         {
-            
-            AnsiConsole.Markup("[dim red]Hello[/] World!");
-            var table = new Table();
-
-// Add some columns
-            table.AddColumn("Foo");
-            table.AddColumn(new TableColumn("Bar").Centered());
-
-// Add some rows
-            table.AddRow("Baz", "[green]Qux[/]");
-            table.AddRow(new Markup("[blue]Corgi[/]"), new Panel("Waldo"));
-
-// Render the table to the console
-            AnsiConsole.Write(table);
-        //     Console.OutputEncoding = System.Text.Encoding.UTF8;
+//             
+//             AnsiConsole.Markup("[dim red]Hello[/] World!");
+//             var table = new Table();
+//
+// // Add some columns
+//             table.AddColumn("Foo");
+//             table.AddColumn(new TableColumn("Bar").Centered());
+//
+// // Add some rows
+//             table.AddRow("Baz", "[green]Qux[/]");
+//             table.AddRow(new Markup("[blue]Corgi[/]"), new Panel("Waldo"));
+//
+// // Render the table to the console
+//             AnsiConsole.Write(table);
+               Console.OutputEncoding = System.Text.Encoding.UTF8;
         //     Console.TreatControlCAsInput = true;
-        //     Console.CursorVisible = true;
+            Console.CursorVisible = true;
         //     
         //     var action = "";
-        //     var combat = new Combat(pcs);
+        var combat = new Combat(pcs);
+        combat.Start();
+        combat.NextRound();
+        InitiativeTracker.Draw(combat, 2);
         //
         //     while (action != "x")
         //     {
