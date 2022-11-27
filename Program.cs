@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System.Diagnostics;
+using System.Runtime.InteropServices;
+using System.Text;
 using System.Text.Json;
 using Initiative.Classes;
 using Initiative.Classes.Screens;
-using Spectre.Console;
-
+using Initiative.Classes.Screens.EventArgs;
 
 namespace Initiative
 {
@@ -15,75 +15,24 @@ namespace Initiative
         
         static void Main(string[] args)
         {
-//             
-//             AnsiConsole.Markup("[dim red]Hello[/] World!");
-//             var table = new Table();
-//
-// // Add some columns
-//             table.AddColumn("Foo");
-//             table.AddColumn(new TableColumn("Bar").Centered());
-//
-// // Add some rows
-//             table.AddRow("Baz", "[green]Qux[/]");
-//             table.AddRow(new Markup("[blue]Corgi[/]"), new Panel("Waldo"));
-//
-// // Render the table to the console
-//             AnsiConsole.Write(table);
-               Console.OutputEncoding = System.Text.Encoding.UTF8;
-        //     Console.TreatControlCAsInput = true;
-            Console.CursorVisible = true;
-        //     
-        //     var action = "";
-        var combat = new Combat(pcs);
-        combat.Start();
-        combat.NextRound();
-        InitiativeTracker.Draw(combat, 2);
-        //
-        //     while (action != "x")
-        //     {
-        //         action = Console.ReadLine();
-        //
-        //         switch (action.ToLower())
-        //         {
-        //             case "a":
-        //                 var combatant = GetCombatantDetails();
-        //                 if (combatant != null)
-        //                 {
-        //                     combat.AddCombatant(combatant);
-        //                     UI.DrawCombat(combat);
-        //                 }
-        //                 
-        //                 break;
-        //             case "r":
-        //                 combat.NextRound();
-        //                 UI.DrawCombat(combat);
-        //                 break;
-        //             case "q":
-        //                 File.WriteAllText(pcFilePath, JsonSerializer.Serialize(pcs));
-        //                 Environment.Exit(0);
-        //                 break;
-        //             default:
-        //                 UI.DrawCombat(combat);
-        //                 break;
-        //         }
-        //     }
-        // }
-        //
-        // private static Combatant? GetCombatantDetails()
-        // {
-        //     var result = UI.DrawAddCombatant();
-        //     UI.ResetScreen();
-        //     
-        //     if (result == null)
-        //         Console.WriteLine("You canceled!");
-        //     else
-        //     {
-        //         Console.WriteLine($"Name: {result.Name}");
-        //         Console.WriteLine($"Player: {result.Player}");
-        //         Console.WriteLine($"Initiative Bonus: {result.InitiativeBonus}");
-        //     }
-        //
-        //     return result;
+            Console.OutputEncoding = Encoding.UTF8;
+            Console.TreatControlCAsInput = true;
+            Console.CursorVisible = false;
+
+            var combat = new Combat(pcs);
+            combat.StartCombat();
+            
+            var screen = new InitiativeTrackerScreen(combat);
+            screen.Exit += ExitApplication;
+            screen.Show();
+            
+            Process.GetCurrentProcess().WaitForExit();
+        }
+
+        private static void ExitApplication(object? sender, ExitEventArgs e)
+        {
+            //File.WriteAllText(pcFilePath, JsonSerializer.Serialize(e.PCs));
+            Environment.Exit(0);
         }
     }
 }

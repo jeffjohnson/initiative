@@ -1,1 +1,46 @@
-[{"initiative":3,"name":"Idith","player":"Chad"},{"initiative":5,"name":"Azaki","player":"Chris"},{"initiative":3,"name":"Jaxi","player":"Eden"},{"initiative":3,"name":"Kestrel","player":"Rob"},{"initiative":2,"name":"Gwynogg","player":"Sammi"},{"initiative":3,"name":"Justin","player":"Mike"},{"initiative":2,"name":"Lorica","player":"Barb"},{"initiative":4,"name":"Jeff","player":"Bill"},{"initiative":0,"name":"Jeff","player":"Bill"},{"initiative":0,"name":"James","player":"Bill"}]
+[{
+  "initiative": 3,
+  "name": "Idith",
+  "player": "Chad"
+}, {
+  "initiative": 5,
+  "name": "Azaki",
+  "player": "Chris"
+}, {
+  "initiative": 3,
+  "name": "Jaxi",
+  "player": "Eden"
+}, {
+  "initiative": 3,
+  "name": "Kestrel",
+  "player": "Rob"
+}, {
+  "initiative": 2,
+  "name": "Gwynogg",
+  "player": "Sammi"
+}, {
+  "initiative": 3,
+  "name": "Justin",
+  "player": "Mike"
+}, {
+  "initiative": 2,
+  "name": "Lorica",
+  "player": "Barb"
+}, {
+  "initiative": 4,
+  "name": "Yellow Orc",
+  "player": ""
+}, {
+  "initiative": -3,
+  "name": "Blue Orc",
+  "player": ""
+}, {
+  "initiative": 0,
+  "name": "Purple Dust Mephit",
+  "player": ""
+},{
+  "initiative": -1,
+  "name": "Yellow Ogre",
+  "player": ""
+}
+]
