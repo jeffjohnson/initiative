@@ -82,7 +82,9 @@ public class KillMonsterScreen : ScreenBase
             Console.Write($"{monster.Name}");
             Console.Write(Environment.NewLine);
         }
-        
+
+        Console.ForegroundColor = DefaultForeground;
+        Console.BackgroundColor = DefaultBackground;
         Console.WriteLine("╰┯────────────────┯─────────────────┯╯");
         Console.WriteLine(" │ `Red|↓´ next monster │ kill selected `Red|↲´ │".FormatANSI());
         Console.WriteLine(" │ `Red|↑´ prev monster │ `Red|c´ancel          │".FormatANSI());

@@ -13,16 +13,19 @@ namespace Initiative
         private static readonly string pcFilePath = "pcs.json";
         static List<Combatant> pcs = JsonSerializer.Deserialize<List<Combatant>>(File.ReadAllText(pcFilePath));
         
+        private static Combat combat;
+        private static InitiativeTrackerScreen screen;
+        
         static void Main(string[] args)
         {
             Console.OutputEncoding = Encoding.UTF8;
             Console.TreatControlCAsInput = true;
             Console.CursorVisible = false;
 
-            var combat = new Combat(pcs);
+            combat = new Combat(pcs);
             combat.StartCombat();
             
-            var screen = new InitiativeTrackerScreen(combat);
+            screen = new InitiativeTrackerScreen(combat);
             screen.Exit += ExitApplication;
             screen.Show();
             
@@ -33,6 +36,16 @@ namespace Initiative
         {
             //File.WriteAllText(pcFilePath, JsonSerializer.Serialize(e.PCs));
             Environment.Exit(0);
+        }
+
+        private static void NewCombat(object? sender, NewCombatEventArgs e)
+        {
+            combat = new Combat(e.PCs);
+            combat.StartCombat();
+            
+            screen = new InitiativeTrackerScreen(combat);
+            screen.Exit += ExitApplication;
+            screen.Show();
         }
     }
 }

@@ -62,6 +62,11 @@ public class InitiativeTrackerScreen : ScreenBase
                     }
 
                     break;
+                
+                case ConsoleKey.X:
+                    Combat = new Combat(Combat.PCs());
+                    Redraw();
+                    break;
                    
                 case ConsoleKey.Q:
                     Console.Clear();
