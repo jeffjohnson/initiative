@@ -15,10 +15,10 @@ public class InitiativeTrackerScreen : ScreenBase
     private int LastCombatantId => Combat.CurrentInitiativeOrder.Last().CombatantId;
     private int actionLineTop = 4;
     
-    public InitiativeTrackerScreen(Combat combat)
+    public InitiativeTrackerScreen(Combat combat) : base()
     {
         Combat = combat;
-        this.Overflow += combat.HandleOverflow;
+        Overflow += combat.HandleOverflow;
         combat.DataChanged += CombatDataChanged;
         SelectedCombatantId = FirstCombatantId;
     }
@@ -28,9 +28,9 @@ public class InitiativeTrackerScreen : ScreenBase
         Reset();
 
         Console.WriteLine("╭────────────╮");
-        Console.WriteLine("│ Initiative ╰───────────────┬───┬───┬───┬───┬─╼ ROUND ╾─┬───┬────┬────┬────┬──╮");
-        Console.WriteLine("│  Tracker                   1   2   3   4   5   6   7   8   9   10   11   12  │");
-        Console.WriteLine("├──────────────────────────────────────────────────────────────────────────────┤");
+        Console.WriteLine("│ Initiative ╰───────────────┬───┬───┬───┬───┬─╼ ROUND ╾─┬───┬────┬──╮");
+        Console.WriteLine("│  Tracker                   1   2   3   4   5   6   7   8   9   10  │");
+        Console.WriteLine("├────────────────────────────────────────────────────────────────────┤");
 
         Redraw();
         
@@ -142,7 +142,7 @@ public class InitiativeTrackerScreen : ScreenBase
             DrawLine(initiativeResult);
         }
         
-        Console.WriteLine("╰┯──────────────────┯──────────────┯───────────────┯─────────────┯─────────────╯");
+        Console.WriteLine("╰┯──────────────────┯──────────────┯───────────────┯─────────────┯───╯");
         actionLineTop = Console.GetCursorPosition().Top;
         Console.WriteLine(" │ `Red|↓´ next combatant │ add `Red|m´onster  │ `Red|a´dd player    │ e`Red|x´it combat │".FormatANSI());
         Console.WriteLine(" │ `Red|↑´ prev combatant │ `Red|k´ill monster │ kill `Red|p´layer   │ `Red|q´uit app    │".FormatANSI());
@@ -155,14 +155,14 @@ public class InitiativeTrackerScreen : ScreenBase
         var pos = Console.GetCursorPosition();
         Console.ForegroundColor = DefaultForeground;
         Console.BackgroundColor = DefaultBackground;
-        Console.Write("│                                                                              │");
+        Console.Write("│                                                                    │");
 
         var combatant = Combat.Combatants().First(x => x.Id == initiative.CombatantId);
         var roundInitiativeHistory = Combat.GetRoundHistory(combatant.Id);
 
         var name = combatant.Name;
         var player = combatant.Player;
-        var emptyRow = "                                                                             ";
+        var emptyRow = "                                                                   ";
             
         // change background current player is selected or is dead
         if (combatant.IsDead)
