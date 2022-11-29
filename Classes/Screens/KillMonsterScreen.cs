@@ -6,9 +6,9 @@ namespace Initiative.Classes.Screens;
 public class KillMonsterScreen : ScreenBase
 {
     private Combat Combat { get; set; }
-    private int FirstMonsterId => Combat.Monsters().First().Id;
+    private int FirstMonsterId => Combat.Monsters.First().Id;
     private int SelectedMonsterId { get; set; }
-    private int LastMonsterId => Combat.Monsters().Last().Id;
+    private int LastMonsterId => Combat.Monsters.Last().Id;
     public KillMonsterScreen(Combat combat)
     {
         Combat = combat;
@@ -42,7 +42,7 @@ public class KillMonsterScreen : ScreenBase
                 case ConsoleKey.Enter:
                     Console.Clear();
                     var args = new KillEventArgs();
-                    args.Combatant = Combat.Monsters().ToList().First(x => x.Id == SelectedMonsterId);
+                    args.Combatant = Combat.Monsters.ToList().First(x => x.Id == SelectedMonsterId);
                     KillMonster?.Invoke(this, args);
                     break;
                 
@@ -57,7 +57,7 @@ public class KillMonsterScreen : ScreenBase
     private void Redraw()
     {
         Console.SetCursorPosition(0, 3);
-        var monsters = Combat.Monsters().Where(x => x.IsDead != true).ToList();
+        var monsters = Combat.Monsters.Where(x => x.IsDead != true).ToList();
 
         foreach (var monster in monsters)
         {
@@ -96,7 +96,7 @@ public class KillMonsterScreen : ScreenBase
         if (SelectedMonsterId == FirstMonsterId)
             return;
         
-        var arr = Combat.Monsters().ToList().Select(x => x.Id).ToArray();
+        var arr = Combat.Monsters.ToList().Select(x => x.Id).ToArray();
         var ix = Array.IndexOf(arr, SelectedMonsterId);
         SelectedMonsterId = arr[ix - 1];
         
@@ -108,7 +108,7 @@ public class KillMonsterScreen : ScreenBase
         if (SelectedMonsterId == LastMonsterId)
             return;
 
-        var arr = Combat.Monsters().ToList().Select(x => x.Id).ToArray();
+        var arr = Combat.Monsters.ToList().Select(x => x.Id).ToArray();
         var ix = Array.IndexOf(arr, SelectedMonsterId);
         SelectedMonsterId = arr[ix + 1];
         Redraw();

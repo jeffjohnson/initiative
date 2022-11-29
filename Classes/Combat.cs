@@ -8,38 +8,32 @@ namespace Initiative.Classes;
 
 public class Combat
 {
-    private SortedDictionary<int, List<CombatantInitiative>> rounds = new SortedDictionary<int, List<CombatantInitiative>>();
-    private readonly List<Combatant> combatants = new List<Combatant>();
-    private readonly Identity identity = new Identity();
-    public int CurrentRound { get; private set; }
-    public int FirstCombatantId => CurrentInitiativeOrder.First().CombatantId;
-    public int CurrentCombatantId { get; private set; }
+    private readonly Identity identity;
+
+    private readonly SortedDictionary<int, Round> rounds;
+    public SortedDictionary<int, Round> Rounds => rounds;
     
-    public int LastCombatantId => CurrentInitiativeOrder.Last().CombatantId;
+    public List<Combatant> Combatants { get; private set; }
+    public List<Combatant> Monsters => Combatants.Where(x => string.IsNullOrEmpty(x.Player)).ToList();
+    public List<Combatant> PCs => Combatants.Where(x => !string.IsNullOrEmpty(x.Player)).ToList();
+    
+    public Round CurrentRound { get; private set; }
+    
     public List<CombatantInitiative> CurrentInitiativeOrder { get; set; }
-    public SortedDictionary<int, List<CombatantInitiative>> Rounds => rounds;
     
+    // ctor
     public Combat(IEnumerable<Combatant> combatants)
     {
-        this.combatants = combatants.ToList();
+        // assign provided combatants to this combat
+        Combatants = combatants.ToList();
         
-        foreach (var combatant in this.combatants)
+        // tracks initiative for each combatant for each round
+        this.rounds = new SortedDictionary<int, Round>();
+        
+        // assign each combatant a unique id
+        this.identity = new Identity();
+        foreach (var combatant in Combatants)
             combatant.Id = identity.Next;
-    }
-
-    public IEnumerable<Combatant> PCs()
-    {
-        return combatants.Where(x => !string.IsNullOrEmpty(x.Player));
-    }
-
-    public IEnumerable<Combatant> Monsters()
-    {
-        return combatants.Where(x => string.IsNullOrEmpty(x.Player));
-    }
-
-    public IEnumerable<Combatant> Combatants()
-    {
-        return combatants;
     }
 
     public void AddCombatant(Combatant combatant)
@@ -47,87 +41,70 @@ public class Combat
         if (combatant.Id == 0)
             combatant.Id = identity.Next;
         
-        combatant.RollInitiative();
-        combatants.Add(combatant);
+        Combatants.Add(combatant);
+        rounds.Last().Value.AddCombatant(combatant);
+        
+        DataChanged?.Invoke(this, new CombatDataChangedEventArgs(
+            combatant.IsMonster ? CombatDataChangeType.MonsterAdded : CombatDataChangeType.PlayerAdded,
+            combatant.Id));
     }
 
     public void KillCombatant(Combatant combatant)
     {
-        combatants.First(x => x.Id == combatant.Id).Kill();
-        DataChanged?.Invoke(this, new CombatDataChangedEventArgs(CurrentCombatantId));
+        Combatants.First(x => x.Id == combatant.Id).Kill();
+        
+        DataChanged?.Invoke(this, new CombatDataChangedEventArgs(
+            combatant.IsMonster ? CombatDataChangeType.MonsterKilled : CombatDataChangeType.PlayerKilled,
+            combatant.Id));
+    }
+
+    public void RevivePlayer(Combatant combatant)
+    {
+        Combatants.First(x => x.Id == combatant.Id).Revive();
+        
+        DataChanged?.Invoke(this, new CombatDataChangedEventArgs(
+            CombatDataChangeType.PlayerRevived,
+            combatant.Id));
     }
     
     public void StartCombat()
     {
-        CurrentRound = 0;
         NextRound();
     }
 
     private void NextRound()
     {
-        CurrentInitiativeOrder = combatants.Select(combatant => new CombatantInitiative(combatant.Id, combatant.RollInitiative())).ToList();
-
-        RemoveDuplicates();
-
-        CurrentInitiativeOrder = CurrentInitiativeOrder.OrderByDescending(x => x.Initiative).ToList();
-        
-        CurrentCombatantId = FirstCombatantId;
-        
-        CurrentRound++;
-        rounds.Add(CurrentRound, CurrentInitiativeOrder);
-        DataChanged?.Invoke(this, new CombatDataChangedEventArgs(CurrentCombatantId));
+        var newRound = rounds.Count() + 1;
+        rounds.Add(newRound, new Round(newRound, Combatants));
+        DataChanged?.Invoke(this, new CombatDataChangedEventArgs(CombatDataChangeType.NewRound));
     }
 
-    public string[] GetRoundHistory(int combatantId)
+    private void PreviousRound()
     {
-        var result = new List<string>();
-        foreach (var round in rounds)
-        {
-            var value = round.Value.First(x => x.CombatantId == combatantId).Initiative;
-            result.Add(value == 0 ? " —" : value.ToString().PadLeft(2, ' '));
-        }
-
-        return result.ToArray();
+        var roundId = rounds.Last().Key;
+        rounds.Remove(roundId);
+        DataChanged?.Invoke(this, new CombatDataChangedEventArgs(CombatDataChangeType.PreviousRound));
     }
+
+    // public string[] GetRoundHistory(int combatantId)
+    // {
+    //     var result = new List<string>();
+    //     foreach (var round in rounds)
+    //     {
+    //         var value = round.Value.First(x => x.CombatantId == combatantId).Initiative;
+    //         result.Add(value == 0 ? " —" : value.ToString().PadLeft(2, ' '));
+    //     }
+    //
+    //     return result.ToArray();
+    // }
     
-    private void RemoveDuplicates()
-    {
-        var rand = new Random();
-
-        while (HasDuplicates(CurrentInitiativeOrder))
-        {
-            var duplicates = CurrentInitiativeOrder.GroupBy(x => x.Initiative).Where(x => x.Skip(1).Any());
-            foreach (var grouping in duplicates)
-            {
-                // 0 means that their initiative is 0 because they are dead
-                if (grouping.Key == 0)
-                    continue;
-                
-                var rolloff = grouping.ToDictionary(x => x.CombatantId, x => rand.Next());
-
-                rolloff = rolloff.OrderBy(x => x.Value).ToDictionary(x => x.Key, x => x.Value);
-                
-                var i = 0;
-                foreach (var rolloffKey in rolloff.Keys)
-                {
-                    CurrentInitiativeOrder.First(x => x.CombatantId == rolloffKey).Initiative += i;
-                    i++;
-                }
-            }
-        }
-    }
     
-    private static bool HasDuplicates(List<CombatantInitiative> initiativeEntries)
+    public void HandleOverflow(object? sender, ScreenOverflowEventArgs e)
     {
-        var aliveEntries = initiativeEntries.Where(x => x.Initiative != 0).ToList();
-        var duplicateEntries = aliveEntries.Select(x => x.Initiative).Distinct().Count();
-        
-        return aliveEntries.Count != duplicateEntries;
-    }
-    
-    public void HandleOverflow(object? sender, EventArgs e)
-    {
-        NextRound();
+        if (e.Direction == OverflowDirection.Down)
+            NextRound();
+        else if (e.Direction == OverflowDirection.Up)
+            PreviousRound();
     }
 
     public event EventHandler<CombatDataChangedEventArgs>? DataChanged;

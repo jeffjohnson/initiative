@@ -2,12 +2,26 @@
 
 public class CombatDataChangedEventArgs : System.EventArgs
 {
-    public int SelectedCombatantId { get; set; }
+    public CombatDataChangeType ChangeType { get; set; }
+    public int? Id { get; set; }
     
     public CombatDataChangedEventArgs() { }
 
-    public CombatDataChangedEventArgs(int selectedCombatantId)
+    public CombatDataChangedEventArgs(CombatDataChangeType changeType, int? id = null)
     {
-        SelectedCombatantId = selectedCombatantId;
+        ChangeType = changeType;
+        Id = id;
     }
+}
+
+public enum CombatDataChangeType
+{
+    NewCombat,
+    NewRound,
+    PreviousRound,
+    PlayerAdded,
+    PlayerKilled,
+    PlayerRevived,
+    MonsterAdded,
+    MonsterKilled
 }

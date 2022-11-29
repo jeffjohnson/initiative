@@ -10,7 +10,8 @@ public class Combatant
     [JsonIgnore]
     public bool IsDead { get; set; }
 
-    [JsonIgnore] public bool IsMonster => string.IsNullOrWhiteSpace(Player);
+    [JsonIgnore]
+    public bool IsMonster => string.IsNullOrWhiteSpace(Player);
 
     [JsonPropertyName("initiative")]
     public int InitiativeBonus { get; set; }
