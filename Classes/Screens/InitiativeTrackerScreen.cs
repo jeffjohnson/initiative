@@ -129,8 +129,19 @@ public class InitiativeTrackerScreen : ScreenBase
     {
         ClearErrors();
         Console.SetCursorPosition(0, 4);
-        var currentRound = Combat.CurrentRound;
-        //var currentRound = rounds[Combat.CurrentRound];
+        
+        var count = Combat.Rounds.Count;
+        if (count < 10)
+            count = 5;
+        
+        var left = 25 + (count * 4);
+        foreach (var combatant in Combat.CurrentRound.Initiatives)
+        {
+            Console.Write("│");
+            Console.SetCursorPosition(left, Console.GetCursorPosition().Top);
+            Console.Write("│");
+            Console.Write(Environment.NewLine);
+        }
     }
 
     private void DrawCombatants()
