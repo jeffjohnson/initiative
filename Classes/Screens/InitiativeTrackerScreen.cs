@@ -93,7 +93,7 @@ public class InitiativeTrackerScreen : ScreenBase
         
         var count = Combat.Rounds.Count;
         if (count < 10)
-            count = 10;
+            count = 5;
         
         for (var i = 1; i <= count; i++)
         {
@@ -109,7 +109,11 @@ public class InitiativeTrackerScreen : ScreenBase
         
         var pos = Console.GetCursorPosition();
         Console.SetCursorPosition(23 + (count * 4) / 2, 1);
-        Console.Write("╼ ROUND ╾");
+        
+        if (count % 2 == 0)
+            Console.Write("╼ ROUND ╾");
+        else
+            Console.Write("┮ ROUND ┭");
         
         Console.SetCursorPosition(pos.Left, 1);
         Console.Write($"──╮{Environment.NewLine}");
