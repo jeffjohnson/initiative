@@ -16,20 +16,14 @@ public class InitiativeTrackerScreen : ScreenBase
     private int LastCombatantId => Combat.CurrentInitiativeOrder.Last().CombatantId;
     private int actionLineTop = 4;
 
-    private SortedDictionary<int, List<CombatantInitiative>> rounds
-    {
-        get
-        {
-            
-        }
-    }
-    
+    private SortedDictionary<int, List<CombatantInitiative>> rounds { get; set; }
+
     public InitiativeTrackerScreen(Combat combat) : base()
     {
         Combat = combat;
         Overflow += combat.HandleOverflow;
         combat.DataChanged += CombatDataChanged;
-        SelectedCombatantId = FirstCombatantId;
+        //SelectedCombatantId = FirstCombatantId;
     }
 
     public void Show()
@@ -39,7 +33,7 @@ public class InitiativeTrackerScreen : ScreenBase
         DrawHeader();
         DrawShell();
         DrawCombatants();
-        Redraw();
+        //Redraw();
         
         var action = new ConsoleKeyInfo();
         while (action.Key != ConsoleKey.Q)
@@ -56,8 +50,8 @@ public class InitiativeTrackerScreen : ScreenBase
                     break;
                 
                 case ConsoleKey.K:
-                    var liveMonsters = Combat.Monsters.Where(x => !x.IsDead);
-                    if (liveMonsters.Any())
+                    var aliveMonsters = Combat.Monsters.Where(x => !x.IsDead);
+                    if (!aliveMonsters.Any())
                     {
                         DrawError(Error.NoMonstersToKill);
                     }
@@ -93,13 +87,6 @@ public class InitiativeTrackerScreen : ScreenBase
     {
         Console.SetCursorPosition(0, 0);
         Console.WriteLine("╭────────────╮");
-        
-        
-        Console.WriteLine("│ Initiative ╰───────────────┬───┬───┬───┬───┬─╼ ROUND ╾─┬───┬───┬──╮");
-        Console.WriteLine("│  Tracker                   1   2   3   4   5   6   7   8   9  10  │");
-        Console.WriteLine("├───────────────────────────────────────────────────────────────────┤");
-
-
         Console.WriteLine("│ Initiative ╰────────────");
         Console.WriteLine("│  Tracker                ");
         Console.WriteLine("├─────────────────────────");
@@ -108,21 +95,20 @@ public class InitiativeTrackerScreen : ScreenBase
         if (count < 10)
             count = 10;
         
-        var pos = Console.GetCursorPosition();
         for (var i = 1; i <= count; i++)
         {
-            pos = Console.GetCursorPosition();
-            Console.SetCursorPosition(pos.Left, 1);
+            Console.SetCursorPosition(22 + i * 4, 1);
             Console.Write("───┬");
             
-            Console.SetCursorPosition(pos.Left, 2);
+            Console.SetCursorPosition(22 + i * 4, 2);
             Console.Write(i.FourPadded());
             
-            Console.SetCursorPosition(pos.Left, 3);
+            Console.SetCursorPosition(22 + i * 4, 3);
             Console.Write("────");
         }
         
-        Console.SetCursorPosition(47, 1);
+        var pos = Console.GetCursorPosition();
+        Console.SetCursorPosition(23 + (count * 4) / 2, 1);
         Console.Write("╼ ROUND ╾");
         
         Console.SetCursorPosition(pos.Left, 1);
@@ -169,7 +155,7 @@ public class InitiativeTrackerScreen : ScreenBase
         }
         
         SelectedCombatantChanged?.Invoke(this, new SelectedCombatantChangedEventArgs(SelectedCombatantId));
-        Redraw();
+        //Redraw();
     }
 
     private void SelectNext()
@@ -200,90 +186,90 @@ public class InitiativeTrackerScreen : ScreenBase
         else
         {
             SelectedCombatantChanged?.Invoke(this, new SelectedCombatantChangedEventArgs(SelectedCombatantId));
-            Redraw();
+            //Redraw();
         }
     }
     
-    private void Redraw()s
-    {
-        ClearErrors();
-        Console.SetCursorPosition(0, 4);
+    // private void Redraw()
+    // {
+    //     ClearErrors();
+    //     Console.SetCursorPosition(0, 4);
+    //
+    //     //order the rounds in ascending order
+    //     var rounds = new SortedDictionary<int, List<CombatantInitiative>>();
+    //
+    //     foreach (var round in Combat.Rounds)
+    //         rounds.Add(round.Key, round.Value);
+    //
+    //     //sort combatants by initiative order in current round
+    //     var currentRound = rounds[Combat.CurrentRound];
+    //     currentRound = currentRound.OrderByDescending(x => x.Initiative).ToList();
+    //
+    //     foreach (var initiativeResult in currentRound)
+    //     {
+    //         //DrawLine(initiativeResult);
+    //     }
+    //     
+    //     Console.WriteLine("╰┯──────────────────┯──────────────┯───────────────┯─────────────┯───╯");
+    //     actionLineTop = Console.GetCursorPosition().Top;
+    //     Console.WriteLine(" │ `Red|↓´ next combatant │ add `Red|m´onster  │ `Red|a´dd player    │ e`Red|x´it combat │".FormatANSI());
+    //     Console.WriteLine(" │ `Red|↑´ prev combatant │ `Red|k´ill monster │ kill `Red|p´layer   │ `Red|q´uit app    │".FormatANSI());
+    //     Console.WriteLine(" │                  │              │ `Red|r´evive player │             │".FormatANSI());
+    //     Console.WriteLine(" ╰──────────────────┷──────────────┷───────────────┷─────────────╯");
+    // }
 
-        //order the rounds in ascending order
-        var rounds = new SortedDictionary<int, List<CombatantInitiative>>();
-
-        foreach (var round in Combat.Rounds)
-            rounds.Add(round.Key, round.Value);
-
-        //sort combatants by initiative order in current round
-        var currentRound = rounds[Combat.CurrentRound];
-        currentRound = currentRound.OrderByDescending(x => x.Initiative).ToList();
-
-        foreach (var initiativeResult in currentRound)
-        {
-            DrawLine(initiativeResult);
-        }
-        
-        Console.WriteLine("╰┯──────────────────┯──────────────┯───────────────┯─────────────┯───╯");
-        actionLineTop = Console.GetCursorPosition().Top;
-        Console.WriteLine(" │ `Red|↓´ next combatant │ add `Red|m´onster  │ `Red|a´dd player    │ e`Red|x´it combat │".FormatANSI());
-        Console.WriteLine(" │ `Red|↑´ prev combatant │ `Red|k´ill monster │ kill `Red|p´layer   │ `Red|q´uit app    │".FormatANSI());
-        Console.WriteLine(" │                  │              │ `Red|r´evive player │             │".FormatANSI());
-        Console.WriteLine(" ╰──────────────────┷──────────────┷───────────────┷─────────────╯");
-    }
-
-    private void DrawLine(CombatantInitiative initiative)
-    {
-        var pos = Console.GetCursorPosition();
-        Console.ForegroundColor = DefaultForeground;
-        Console.BackgroundColor = DefaultBackground;
-        Console.Write("│                                                                    │");
-
-        var combatant = Combat.Combatants().First(x => x.Id == initiative.CombatantId);
-        var roundInitiativeHistory = Combat.GetRoundHistory(combatant.Id);
-
-        var name = combatant.Name;
-        var player = combatant.Player;
-        var emptyRow = "                                                                   ";
-            
-        // change background current player is selected or is dead
-        if (combatant.IsDead)
-        {
-            Console.ForegroundColor = DeadCombatantForegroundColor;
-            Console.BackgroundColor = DeadCombatantBackgroundColor;
-        }
-        else if (initiative.CombatantId == SelectedCombatantId)
-        {
-            Console.ForegroundColor = SelectedForeground;
-            Console.BackgroundColor = SelectedBackground;
-        }
-        
-        // draw a blank row
-        Console.SetCursorPosition(2, pos.Top);
-        Console.WriteLine(emptyRow);
-
-        // draw name
-        Console.SetCursorPosition(2, pos.Top);
-        Console.Write($"{name}");
-        
-        // draw player
-        if (!string.IsNullOrWhiteSpace(player))
-            Console.Write($" ({player})");
-
-        // draw initiative columns
-        var i = 1;
-        foreach (var initiativeValue in roundInitiativeHistory)
-        {
-            Console.SetCursorPosition(24 + (i * 4), pos.Top);
-            Console.Write(initiativeValue);
-            i++;
-        }
-            
-        Console.ForegroundColor = DefaultForeground;
-        Console.BackgroundColor = DefaultBackground;
-            
-        Console.Write(Environment.NewLine);
-    }
+    // private void DrawLine(CombatantInitiative initiative)
+    // {
+    //     var pos = Console.GetCursorPosition();
+    //     Console.ForegroundColor = DefaultForeground;
+    //     Console.BackgroundColor = DefaultBackground;
+    //     Console.Write("│                                                                    │");
+    //
+    //     var combatant = Combat.Combatants.First(x => x.Id == initiative.CombatantId);
+    //     var roundInitiativeHistory = Combat.GetRoundHistory(combatant.Id);
+    //
+    //     var name = combatant.Name;
+    //     var player = combatant.Player;
+    //     var emptyRow = "                                                                   ";
+    //         
+    //     // change background current player is selected or is dead
+    //     if (combatant.IsDead)
+    //     {
+    //         Console.ForegroundColor = DeadCombatantForegroundColor;
+    //         Console.BackgroundColor = DeadCombatantBackgroundColor;
+    //     }
+    //     else if (initiative.CombatantId == SelectedCombatantId)
+    //     {
+    //         Console.ForegroundColor = SelectedForeground;
+    //         Console.BackgroundColor = SelectedBackground;
+    //     }
+    //     
+    //     // draw a blank row
+    //     Console.SetCursorPosition(2, pos.Top);
+    //     Console.WriteLine(emptyRow);
+    //
+    //     // draw name
+    //     Console.SetCursorPosition(2, pos.Top);
+    //     Console.Write($"{name}");
+    //     
+    //     // draw player
+    //     if (!string.IsNullOrWhiteSpace(player))
+    //         Console.Write($" ({player})");
+    //
+    //     // draw initiative columns
+    //     var i = 1;
+    //     foreach (var initiativeValue in roundInitiativeHistory)
+    //     {
+    //         Console.SetCursorPosition(24 + (i * 4), pos.Top);
+    //         Console.Write(initiativeValue);
+    //         i++;
+    //     }
+    //         
+    //     Console.ForegroundColor = DefaultForeground;
+    //     Console.BackgroundColor = DefaultBackground;
+    //         
+    //     Console.Write(Environment.NewLine);
+    // }
     
     private void DrawError(Error error)
     {
