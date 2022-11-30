@@ -17,7 +17,8 @@ namespace Initiative
         private static Combat combat;
         private static InitiativeTrackerScreen screen;
         private static KillMonsterScreen killMonsterScreen;
-        private static KillPcScreen killPcScreen;
+        private static KillPCScreen killPCScreen;
+        private static RevivePCScreen revivePCScreen;
         
         static void Main(string[] args)
         {
@@ -47,7 +48,8 @@ namespace Initiative
             screen = new InitiativeTrackerScreen(combat);
             screen.StartNewCombat += NewCombat;
             screen.ShowKillMonsterScreen += ShowKillMonsterScreen;
-            screen.ShowKillPcScreen += ShowKillPcScreen;
+            screen.ShowKillPCScreen += ShowKillPCScreen;
+            screen.ShowRevivePCScreen += ShowRevivePCScreen;
             screen.Exit += ExitApplication;
             screen.Show();
         }
@@ -64,16 +66,28 @@ namespace Initiative
             killMonsterScreen.Show();
         }
         
-        private static void ShowKillPcScreen(object? sender, EventArgs e)
+        private static void ShowKillPCScreen(object? sender, EventArgs e)
         {
-            killPcScreen = new KillPcScreen(combat);
-            killPcScreen.Cancel += screen.KillCancel;
-            killPcScreen.KillPc += (sender, args) =>
+            killPCScreen = new KillPCScreen(combat);
+            killPCScreen.Cancel += screen.KillCancel;
+            killPCScreen.KillPC += (sender, args) =>
             {
                 combat.KillCombatant(args.Combatant);
                 screen.Show();
             };
-            killPcScreen.Show();
+            killPCScreen.Show();
+        }
+        
+        private static void ShowRevivePCScreen(object? sender, EventArgs e)
+        {
+            revivePCScreen = new RevivePCScreen(combat);
+            revivePCScreen.Cancel += screen.KillCancel;
+            revivePCScreen.RevivePc += (sender, args) =>
+            {
+                combat.RevivePC(args.Combatant);
+                screen.Show();
+            };
+            revivePCScreen.Show();
         }
     }
 }

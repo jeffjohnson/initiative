@@ -19,9 +19,9 @@ public enum CombatDataChangeType
     NewCombat,
     NewRound,
     PreviousRound,
-    PlayerAdded,
-    PlayerKilled,
-    PlayerRevived,
+    PCAdded,
+    PCKilled,
+    PCRevived,
     MonsterAdded,
     MonsterKilled
 }

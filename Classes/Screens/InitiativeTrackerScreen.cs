@@ -63,6 +63,13 @@ public class InitiativeTrackerScreen : ScreenBase
                     break;
                 
                 
+                case ConsoleKey.N:
+                    StartNewCombat?.Invoke(this, new NewCombatEventArgs()
+                    {
+                        PCs = Combat.PCs
+                    });
+                    break;
+                
                 case ConsoleKey.P:
                     var alivePCs = Combat.PCs.Where(x => !x.IsDead);
                     if (!alivePCs.Any())
@@ -71,18 +78,11 @@ public class InitiativeTrackerScreen : ScreenBase
                     }
                     else
                     {
-                        ShowKillPcScreen?.Invoke(this, System.EventArgs.Empty);
+                        ShowKillPCScreen?.Invoke(this, System.EventArgs.Empty);
                     }
 
                     break;
-
-                case ConsoleKey.X:
-                    StartNewCombat?.Invoke(this, new NewCombatEventArgs()
-                    {
-                        PCs = Combat.PCs
-                    });
-                    break;
-                   
+                
                 case ConsoleKey.Q:
                     Console.Clear();
                     var args = new ExitEventArgs()
@@ -92,6 +92,21 @@ public class InitiativeTrackerScreen : ScreenBase
 
                     Exit?.Invoke(this, args);
                     break;
+                
+                case ConsoleKey.R:
+                    var deadPCs = Combat.PCs.Where(x => x.IsDead);
+                    if (!deadPCs.Any())
+                    {
+                        DrawError(Error.NoPCsToRevive);
+                    }
+                    else
+                    {
+                        ShowRevivePCScreen?.Invoke(this, System.EventArgs.Empty);
+                    }
+                    break;
+
+                   
+
             }
         }
     }
@@ -152,15 +167,15 @@ public class InitiativeTrackerScreen : ScreenBase
             Console.Write(Environment.NewLine);
         });
 
-        Console.Write("╰┯──────────────────┯──────────────┯───────────────┯─────────────┯─");
+        Console.Write("╰┯──────────────────┯──────────────┯───────────┯─────────────┯─");
         
         Console.Write("".PadLeft((columnCount - MIN_COLUMNS) * 4, '─'));
-        Console.Write("─╯");
+        Console.Write("─────╯");
         Console.Write(Environment.NewLine);
-        Console.WriteLine(" │ `Red|↓´ next combatant │ add `Red|m´onster  │ `Red|a´dd player    │ e`Red|x´it combat │".FormatANSI());
-        Console.WriteLine(" │ `Red|↑´ prev combatant │ `Red|k´ill monster │ kill `Red|p´layer   │ `Red|q´uit app    │".FormatANSI());
-        Console.WriteLine(" │                  │              │ `Red|r´evive player │             │".FormatANSI());
-        Console.WriteLine(" ╰──────────────────┷──────────────┷───────────────┷─────────────╯");
+        Console.WriteLine(" │ `Red|↓´ next combatant │ add `Red|m´onster  │ `Red|a´dd pc    │ `Red|n´ew combat  │".FormatANSI());
+        Console.WriteLine(" │ `Red|↑´ prev combatant │ `Red|k´ill monster │ kill `Red|p´c   │ `Red|q´uit app    │".FormatANSI());
+        Console.WriteLine(" │                  │              │ `Red|r´evive pc │             │".FormatANSI());
+        Console.WriteLine(" ╰──────────────────┷──────────────┷───────────┷─────────────╯");
     }
 
     private void DrawCombatants()
@@ -334,7 +349,9 @@ public class InitiativeTrackerScreen : ScreenBase
                 break;
             
             case CombatDataChangeType.MonsterKilled:
-            case CombatDataChangeType.PlayerKilled:
+            case CombatDataChangeType.PCKilled:
+            case CombatDataChangeType.PCAdded:
+            case CombatDataChangeType.PCRevived:
                 DrawHeader();
                 DrawShell();
                 DrawCombatants();
@@ -351,13 +368,15 @@ public class InitiativeTrackerScreen : ScreenBase
     private enum Error
     {
         NoMonstersToKill,
-        NoPCsToKill
+        NoPCsToKill,
+        NoPCsToRevive
     }
     
     public event EventHandler<ExitEventArgs>? Exit;
     public event EventHandler<NewCombatEventArgs>? StartNewCombat; 
     public event EventHandler<ScreenOverflowEventArgs>? Overflow;
     public event EventHandler? ShowKillMonsterScreen;
-    public event EventHandler? ShowKillPcScreen; 
+    public event EventHandler? ShowKillPCScreen;
+    public event EventHandler? ShowRevivePCScreen;
     public event EventHandler<SelectedCombatantChangedEventArgs>? SelectedCombatantChanged;
 }

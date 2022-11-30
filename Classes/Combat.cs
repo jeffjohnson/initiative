@@ -46,7 +46,7 @@ public class Combat
         rounds.Last().Value.AddCombatant(combatant);
         
         DataChanged?.Invoke(this, new CombatDataChangedEventArgs(
-            combatant.IsMonster ? CombatDataChangeType.MonsterAdded : CombatDataChangeType.PlayerAdded,
+            combatant.IsMonster ? CombatDataChangeType.MonsterAdded : CombatDataChangeType.PCAdded,
             combatant.Id));
     }
 
@@ -55,21 +55,22 @@ public class Combat
         Combatants.First(x => x.Id == combatant.Id).Kill();
         
         DataChanged?.Invoke(this, new CombatDataChangedEventArgs(
-            combatant.IsMonster ? CombatDataChangeType.MonsterKilled : CombatDataChangeType.PlayerKilled,
+            combatant.IsMonster ? CombatDataChangeType.MonsterKilled : CombatDataChangeType.PCKilled,
             combatant.Id));
     }
 
-    public void RevivePlayer(Combatant combatant)
+    public void RevivePC(Combatant combatant)
     {
         Combatants.First(x => x.Id == combatant.Id).Revive();
         
         DataChanged?.Invoke(this, new CombatDataChangedEventArgs(
-            CombatDataChangeType.PlayerRevived,
+            CombatDataChangeType.PCRevived,
             combatant.Id));
     }
     
     public void StartCombat()
     {
+        rounds.Clear();
         NextRound();
     }
 

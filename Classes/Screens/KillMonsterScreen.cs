@@ -47,6 +47,7 @@ public class KillMonsterScreen : ScreenBase
                     break;
                 
                 case ConsoleKey.C:
+                case ConsoleKey.Escape:
                     Cancel?.Invoke(this, System.EventArgs.Empty);
                     break;
             }
@@ -86,7 +87,7 @@ public class KillMonsterScreen : ScreenBase
         Console.BackgroundColor = DefaultBackground;
         Console.WriteLine("╰┯────────────────┯─────────────────┯╯");
         Console.WriteLine(" │ `Red|↓´ next monster │ kill selected `Red|↲´ │".FormatANSI());
-        Console.WriteLine(" │ `Red|↑´ prev monster │ `Red|c´ancel          │".FormatANSI());
+        Console.WriteLine(" │ `Red|↑´ prev monster │ `Red|c´ancel `Red|ESC´      │".FormatANSI());
         Console.WriteLine(" ╰────────────────┷─────────────────╯");
     }
 
