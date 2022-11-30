@@ -17,7 +17,7 @@ public class InitiativeTrackerScreen : ScreenBase
     private int LastCombatantId => Combat.CurrentInitiativeOrder.Last().CombatantId;
     private int actionLineTop = 4;
 
-    private SortedDictionary<int, List<CombatantInitiative>> rounds { get; set; }
+    // private SortedDictionary<int, List<CombatantInitiative>> rounds { get; set; }
 
     public InitiativeTrackerScreen(Combat combat) : base()
     {
@@ -35,8 +35,7 @@ public class InitiativeTrackerScreen : ScreenBase
         DrawHeader();
         DrawShell();
         DrawCombatants();
-        //Redraw();
-        
+
         var action = new ConsoleKeyInfo();
         while (action.Key != ConsoleKey.Q)
         {
@@ -66,10 +65,12 @@ public class InitiativeTrackerScreen : ScreenBase
                     }
 
                     break;
-                
+
                 case ConsoleKey.X:
-                    Combat = new Combat(Combat.PCs);
-                    Show();
+                    StartNewCombat?.Invoke(this, new NewCombatEventArgs()
+                    {
+                        PCs = Combat.PCs
+                    });
                     break;
                    
                 case ConsoleKey.Q:
@@ -340,6 +341,7 @@ public class InitiativeTrackerScreen : ScreenBase
     }
     
     public event EventHandler<ExitEventArgs>? Exit;
+    public event EventHandler<NewCombatEventArgs>? StartNewCombat; 
     public event EventHandler<ScreenOverflowEventArgs>? Overflow;
     public event EventHandler<SelectedCombatantChangedEventArgs>? SelectedCombatantChanged;
 }

@@ -26,6 +26,7 @@ namespace Initiative
             combat.StartCombat();
             
             screen = new InitiativeTrackerScreen(combat);
+            screen.StartNewCombat += NewCombat;
             screen.Exit += ExitApplication;
             screen.Show();
             
@@ -44,6 +45,7 @@ namespace Initiative
             combat.StartCombat();
             
             screen = new InitiativeTrackerScreen(combat);
+            screen.StartNewCombat += NewCombat;
             screen.Exit += ExitApplication;
             screen.Show();
         }
