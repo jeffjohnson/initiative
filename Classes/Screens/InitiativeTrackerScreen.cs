@@ -186,14 +186,19 @@ public class InitiativeTrackerScreen : ScreenBase
             if (!string.IsNullOrWhiteSpace(player))
                 Console.Write($" ({player})");
             
-            // draw initiative columns
+            // draw initiative columns for this player
             var i = 1;
             foreach (var round in Combat.Rounds)
             {
-                Console.SetCursorPosition(24 + (i * 4), top);
-                Console.Write(round.Value.Initiatives
+                var initiativeRoll = round.Value.Initiatives
                     .First(x => x.CombatantId == combatant.Id)
-                    .Initiative.ToString().PadLeft(2, ' '));
+                    .Initiative.ToString();
+
+                if (initiativeRoll == "0")
+                    initiativeRoll = "—";
+                
+                Console.SetCursorPosition(24 + (i * 4), top);
+                Console.Write(initiativeRoll.PadLeft(2, ' '));
                 i++;
             }
                 
