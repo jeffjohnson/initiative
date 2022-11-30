@@ -191,7 +191,9 @@ public class InitiativeTrackerScreen : ScreenBase
             foreach (var round in Combat.Rounds)
             {
                 Console.SetCursorPosition(24 + (i * 4), top);
-                Console.Write(round.Value.Initiatives.First(x => x.CombatantId == combatant.Id).Initiative);
+                Console.Write(round.Value.Initiatives
+                    .First(x => x.CombatantId == combatant.Id)
+                    .Initiative.ToString().PadLeft(2, ' '));
                 i++;
             }
                 
@@ -204,8 +206,14 @@ public class InitiativeTrackerScreen : ScreenBase
     
     private void SelectPrevious()
     {
+        // trigger overflow, which will create a new round
         if (SelectedCombatantId == FirstCombatantId)
+        {
+            if (Combat.Rounds.First().Key != Combat.CurrentRound.Number)
+                Overflow?.Invoke(this, new ScreenOverflowEventArgs(OverflowDirection.Up));
+            
             return;
+        } 
         
         var arr = Combat.CurrentInitiativeOrder.Select(x => x.CombatantId).ToArray();
         var ix = Array.IndexOf(arr, SelectedCombatantId);
@@ -223,19 +231,15 @@ public class InitiativeTrackerScreen : ScreenBase
         }
         
         SelectedCombatantChanged?.Invoke(this, new SelectedCombatantChangedEventArgs(SelectedCombatantId));
-        //Redraw();
+        DrawCombatants();
     }
 
     private void SelectNext()
     {
         // trigger overflow, which will create a new round
-        if (SelectedCombatantId == LastCombatantId || SelectedCombatantId == FirstCombatantId)
+        if (SelectedCombatantId == LastCombatantId)
         {
-            var direction = OverflowDirection.Down;
-            if (SelectedCombatantId == FirstCombatantId)
-                direction = OverflowDirection.Up;
-            
-            Overflow?.Invoke(this, new ScreenOverflowEventArgs(direction));
+            Overflow?.Invoke(this, new ScreenOverflowEventArgs(OverflowDirection.Down));
             return;
         } 
             
@@ -254,90 +258,9 @@ public class InitiativeTrackerScreen : ScreenBase
         else
         {
             SelectedCombatantChanged?.Invoke(this, new SelectedCombatantChangedEventArgs(SelectedCombatantId));
-            //Redraw();
+            DrawCombatants();
         }
     }
-    
-    // private void Redraw()
-    // {
-    //     ClearErrors();
-    //     Console.SetCursorPosition(0, 4);
-    //
-    //     //order the rounds in ascending order
-    //     var rounds = new SortedDictionary<int, List<CombatantInitiative>>();
-    //
-    //     foreach (var round in Combat.Rounds)
-    //         rounds.Add(round.Key, round.Value);
-    //
-    //     //sort combatants by initiative order in current round
-    //     var currentRound = rounds[Combat.CurrentRound];
-    //     currentRound = currentRound.OrderByDescending(x => x.Initiative).ToList();
-    //
-    //     foreach (var initiativeResult in currentRound)
-    //     {
-    //         //DrawLine(initiativeResult);
-    //     }
-    //     
-    //     Console.WriteLine("╰┯──────────────────┯──────────────┯───────────────┯─────────────┯───╯");
-    //     actionLineTop = Console.GetCursorPosition().Top;
-    //     Console.WriteLine(" │ `Red|↓´ next combatant │ add `Red|m´onster  │ `Red|a´dd player    │ e`Red|x´it combat │".FormatANSI());
-    //     Console.WriteLine(" │ `Red|↑´ prev combatant │ `Red|k´ill monster │ kill `Red|p´layer   │ `Red|q´uit app    │".FormatANSI());
-    //     Console.WriteLine(" │                  │              │ `Red|r´evive player │             │".FormatANSI());
-    //     Console.WriteLine(" ╰──────────────────┷──────────────┷───────────────┷─────────────╯");
-    // }
-
-    // private void DrawLine(CombatantInitiative initiative)
-    // {
-    //     var pos = Console.GetCursorPosition();
-    //     Console.ForegroundColor = DefaultForeground;
-    //     Console.BackgroundColor = DefaultBackground;
-    //     Console.Write("│                                                                    │");
-    //
-    //     var combatant = Combat.Combatants.First(x => x.Id == initiative.CombatantId);
-    //     var roundInitiativeHistory = Combat.GetRoundHistory(combatant.Id);
-    //
-    //     var name = combatant.Name;
-    //     var player = combatant.Player;
-    //     var emptyRow = "                                                                   ";
-    //         
-    //     // change background current player is selected or is dead
-    //     if (combatant.IsDead)
-    //     {
-    //         Console.ForegroundColor = DeadCombatantForegroundColor;
-    //         Console.BackgroundColor = DeadCombatantBackgroundColor;
-    //     }
-    //     else if (initiative.CombatantId == SelectedCombatantId)
-    //     {
-    //         Console.ForegroundColor = SelectedForeground;
-    //         Console.BackgroundColor = SelectedBackground;
-    //     }
-    //     
-    //     // draw a blank row
-    //     Console.SetCursorPosition(2, pos.Top);
-    //     Console.WriteLine(emptyRow);
-    //
-    //     // draw name
-    //     Console.SetCursorPosition(2, pos.Top);
-    //     Console.Write($"{name}");
-    //     
-    //     // draw player
-    //     if (!string.IsNullOrWhiteSpace(player))
-    //         Console.Write($" ({player})");
-    //
-    //     // draw initiative columns
-    //     var i = 1;
-    //     foreach (var initiativeValue in roundInitiativeHistory)
-    //     {
-    //         Console.SetCursorPosition(24 + (i * 4), pos.Top);
-    //         Console.Write(initiativeValue);
-    //         i++;
-    //     }
-    //         
-    //     Console.ForegroundColor = DefaultForeground;
-    //     Console.BackgroundColor = DefaultBackground;
-    //         
-    //     Console.Write(Environment.NewLine);
-    // }
     
     private void DrawError(Error error)
     {
@@ -370,6 +293,25 @@ public class InitiativeTrackerScreen : ScreenBase
         switch (e.ChangeType)
         {
             case CombatDataChangeType.MonsterAdded:
+                DrawShell();
+                DrawCombatants();
+                break;
+            
+            case CombatDataChangeType.NewRound:
+                if (Combat.Rounds.Count > 10)
+                {
+                    DrawHeader();
+                    DrawShell();
+                }
+
+                SelectedCombatantId = Combat.CurrentRound.Initiatives
+                    .OrderByDescending(x => x.Initiative)
+                    .First().CombatantId;
+                
+                DrawCombatants();
+                break;
+            
+            case CombatDataChangeType.PreviousRound:
                 DrawHeader();
                 DrawShell();
                 DrawCombatants();

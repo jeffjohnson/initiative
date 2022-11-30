@@ -18,8 +18,9 @@ public class Combat
     public List<Combatant> PCs => Combatants.Where(x => !string.IsNullOrEmpty(x.Player)).ToList();
     
     public Round CurrentRound { get; private set; }
-    
-    public List<CombatantInitiative> CurrentInitiativeOrder { get; set; }
+
+    public List<CombatantInitiative> CurrentInitiativeOrder =>
+        CurrentRound.Initiatives.OrderByDescending(x => x.Initiative).ToList();
     
     // ctor
     public Combat(IEnumerable<Combatant> combatants)
@@ -84,22 +85,10 @@ public class Combat
     {
         var roundId = rounds.Last().Key;
         rounds.Remove(roundId);
+        CurrentRound = rounds.Last().Value;
         DataChanged?.Invoke(this, new CombatDataChangedEventArgs(CombatDataChangeType.PreviousRound));
     }
 
-    // public string[] GetRoundHistory(int combatantId)
-    // {
-    //     var result = new List<string>();
-    //     foreach (var round in rounds)
-    //     {
-    //         var value = round.Value.First(x => x.CombatantId == combatantId).Initiative;
-    //         result.Add(value == 0 ? " —" : value.ToString().PadLeft(2, ' '));
-    //     }
-    //
-    //     return result.ToArray();
-    // }
-    
-    
     public void HandleOverflow(object? sender, ScreenOverflowEventArgs e)
     {
         if (e.Direction == OverflowDirection.Down)
