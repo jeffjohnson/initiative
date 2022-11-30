@@ -75,7 +75,8 @@ public class Combat
     private void NextRound()
     {
         var newRound = rounds.Count() + 1;
-        rounds.Add(newRound, new Round(newRound, Combatants));
+        CurrentRound = new Round(newRound, Combatants);
+        rounds.Add(newRound, CurrentRound);
         DataChanged?.Invoke(this, new CombatDataChangedEventArgs(CombatDataChangeType.NewRound));
     }
 
