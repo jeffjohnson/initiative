@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using Initiative.Classes;
 using Initiative.Classes.Screens;
@@ -15,6 +16,7 @@ namespace Initiative
         
         private static Combat combat;
         private static InitiativeTrackerScreen screen;
+        private static KillMonsterScreen killMonsterScreen;
         
         static void Main(string[] args)
         {
@@ -22,13 +24,10 @@ namespace Initiative
             Console.TreatControlCAsInput = true;
             Console.CursorVisible = false;
 
-            combat = new Combat(pcs);
-            combat.StartCombat();
-            
-            screen = new InitiativeTrackerScreen(combat);
-            screen.StartNewCombat += NewCombat;
-            screen.Exit += ExitApplication;
-            screen.Show();
+            NewCombat(null, new NewCombatEventArgs()
+            {
+                PCs = pcs
+            });
             
             Process.GetCurrentProcess().WaitForExit();
         }
@@ -46,8 +45,21 @@ namespace Initiative
             
             screen = new InitiativeTrackerScreen(combat);
             screen.StartNewCombat += NewCombat;
+            screen.ShowKillMonsterScreen += ShowKillMonsterScreen;
             screen.Exit += ExitApplication;
             screen.Show();
+        }
+
+        private static void ShowKillMonsterScreen(object? sender, EventArgs e)
+        {
+            killMonsterScreen = new KillMonsterScreen(combat);
+            killMonsterScreen.Cancel += screen.KillCancel;
+            killMonsterScreen.KillMonster += (sender, ea) =>
+            {
+                combat.KillCombatant(ea.Combatant);
+                screen.Show();
+            };
+            killMonsterScreen.Show();
         }
     }
 }

@@ -6,9 +6,9 @@ namespace Initiative.Classes.Screens;
 public class KillMonsterScreen : ScreenBase
 {
     private Combat Combat { get; set; }
-    private int FirstMonsterId => Combat.Monsters.First().Id;
+    private int FirstMonsterId => Combat.Monsters.First(x => x.IsDead != true).Id;
     private int SelectedMonsterId { get; set; }
-    private int LastMonsterId => Combat.Monsters.Last().Id;
+    private int LastMonsterId => Combat.Monsters.Last(x => x.IsDead != true).Id;
     public KillMonsterScreen(Combat combat)
     {
         Combat = combat;
@@ -40,14 +40,13 @@ public class KillMonsterScreen : ScreenBase
                     break;
                    
                 case ConsoleKey.Enter:
-                    Console.Clear();
-                    var args = new KillEventArgs();
-                    args.Combatant = Combat.Monsters.ToList().First(x => x.Id == SelectedMonsterId);
-                    KillMonster?.Invoke(this, args);
+                    KillMonster?.Invoke(this, new KillEventArgs()
+                    {
+                        Combatant = Combat.Monsters.ToList().First(x => x.Id == SelectedMonsterId)
+                    });
                     break;
                 
                 case ConsoleKey.C:
-                    Console.Clear();
                     Cancel?.Invoke(this, System.EventArgs.Empty);
                     break;
             }
@@ -96,9 +95,11 @@ public class KillMonsterScreen : ScreenBase
         if (SelectedMonsterId == FirstMonsterId)
             return;
         
-        var arr = Combat.Monsters.ToList().Select(x => x.Id).ToArray();
-        var ix = Array.IndexOf(arr, SelectedMonsterId);
-        SelectedMonsterId = arr[ix - 1];
+        var aliveMonsters = Combat.Monsters
+            .Where(x => !x.IsDead).ToList()
+            .Select(x => x.Id).ToArray();
+        var ix = Array.IndexOf(aliveMonsters, SelectedMonsterId);
+        SelectedMonsterId = aliveMonsters[ix - 1];
         
         Redraw();
     }
@@ -108,9 +109,11 @@ public class KillMonsterScreen : ScreenBase
         if (SelectedMonsterId == LastMonsterId)
             return;
 
-        var arr = Combat.Monsters.ToList().Select(x => x.Id).ToArray();
-        var ix = Array.IndexOf(arr, SelectedMonsterId);
-        SelectedMonsterId = arr[ix + 1];
+        var aliveMonsters = Combat.Monsters
+            .Where(x => !x.IsDead).ToList()
+            .Select(x => x.Id).ToArray();
+        var ix = Array.IndexOf(aliveMonsters, SelectedMonsterId);
+        SelectedMonsterId = aliveMonsters[ix + 1];
         Redraw();
     }
     

@@ -16,9 +16,8 @@ public class InitiativeTrackerScreen : ScreenBase
     private int SelectedCombatantId { get; set; }
     private int LastCombatantId => Combat.CurrentInitiativeOrder.Last().CombatantId;
     private int actionLineTop = 4;
-
-    // private SortedDictionary<int, List<CombatantInitiative>> rounds { get; set; }
-
+    
+    // ctor
     public InitiativeTrackerScreen(Combat combat) : base()
     {
         Combat = combat;
@@ -58,10 +57,7 @@ public class InitiativeTrackerScreen : ScreenBase
                     }
                     else
                     {
-                        var killMonsterScreen = new KillMonsterScreen(Combat);
-                        killMonsterScreen.Cancel += KillCancel;
-                        killMonsterScreen.KillMonster += KillCombatant;
-                        killMonsterScreen.Show();
+                        ShowKillMonsterScreen?.Invoke(this, System.EventArgs.Empty);
                     }
 
                     break;
@@ -322,19 +318,22 @@ public class InitiativeTrackerScreen : ScreenBase
                 DrawShell();
                 DrawCombatants();
                 break;
+            
+            case CombatDataChangeType.MonsterKilled:
+            case CombatDataChangeType.PlayerKilled:
+                DrawHeader();
+                DrawShell();
+                DrawCombatants();
+                break;
         }
     }
 
-    private void KillCancel(object? sender, System.EventArgs e)
+    public void KillCancel(object? sender, System.EventArgs e)
     {
+        // redraw everything
         Show();
     }
 
-    private void KillCombatant(object? sender, KillEventArgs e)
-    {
-        Combat.KillCombatant(e.Combatant);
-    }
-    
     private enum Error
     {
         NoMonstersToKill
@@ -343,5 +342,6 @@ public class InitiativeTrackerScreen : ScreenBase
     public event EventHandler<ExitEventArgs>? Exit;
     public event EventHandler<NewCombatEventArgs>? StartNewCombat; 
     public event EventHandler<ScreenOverflowEventArgs>? Overflow;
+    public event EventHandler? ShowKillMonsterScreen;
     public event EventHandler<SelectedCombatantChangedEventArgs>? SelectedCombatantChanged;
 }
