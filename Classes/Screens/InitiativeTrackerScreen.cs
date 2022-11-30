@@ -61,6 +61,20 @@ public class InitiativeTrackerScreen : ScreenBase
                     }
 
                     break;
+                
+                
+                case ConsoleKey.P:
+                    var alivePCs = Combat.PCs.Where(x => !x.IsDead);
+                    if (!alivePCs.Any())
+                    {
+                        DrawError(Error.NoPCsToKill);
+                    }
+                    else
+                    {
+                        ShowKillPcScreen?.Invoke(this, System.EventArgs.Empty);
+                    }
+
+                    break;
 
                 case ConsoleKey.X:
                     StartNewCombat?.Invoke(this, new NewCombatEventArgs()
@@ -336,12 +350,14 @@ public class InitiativeTrackerScreen : ScreenBase
 
     private enum Error
     {
-        NoMonstersToKill
+        NoMonstersToKill,
+        NoPCsToKill
     }
     
     public event EventHandler<ExitEventArgs>? Exit;
     public event EventHandler<NewCombatEventArgs>? StartNewCombat; 
     public event EventHandler<ScreenOverflowEventArgs>? Overflow;
     public event EventHandler? ShowKillMonsterScreen;
+    public event EventHandler? ShowKillPcScreen; 
     public event EventHandler<SelectedCombatantChangedEventArgs>? SelectedCombatantChanged;
 }

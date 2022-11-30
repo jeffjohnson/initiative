@@ -17,6 +17,7 @@ namespace Initiative
         private static Combat combat;
         private static InitiativeTrackerScreen screen;
         private static KillMonsterScreen killMonsterScreen;
+        private static KillPcScreen killPcScreen;
         
         static void Main(string[] args)
         {
@@ -46,6 +47,7 @@ namespace Initiative
             screen = new InitiativeTrackerScreen(combat);
             screen.StartNewCombat += NewCombat;
             screen.ShowKillMonsterScreen += ShowKillMonsterScreen;
+            screen.ShowKillPcScreen += ShowKillPcScreen;
             screen.Exit += ExitApplication;
             screen.Show();
         }
@@ -54,12 +56,24 @@ namespace Initiative
         {
             killMonsterScreen = new KillMonsterScreen(combat);
             killMonsterScreen.Cancel += screen.KillCancel;
-            killMonsterScreen.KillMonster += (sender, ea) =>
+            killMonsterScreen.KillMonster += (sender, args) =>
             {
-                combat.KillCombatant(ea.Combatant);
+                combat.KillCombatant(args.Combatant);
                 screen.Show();
             };
             killMonsterScreen.Show();
+        }
+        
+        private static void ShowKillPcScreen(object? sender, EventArgs e)
+        {
+            killPcScreen = new KillPcScreen(combat);
+            killPcScreen.Cancel += screen.KillCancel;
+            killPcScreen.KillPc += (sender, args) =>
+            {
+                combat.KillCombatant(args.Combatant);
+                screen.Show();
+            };
+            killPcScreen.Show();
         }
     }
 }
