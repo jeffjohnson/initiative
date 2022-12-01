@@ -87,8 +87,8 @@ public class KillPCScreen : ScreenBase
         Console.ForegroundColor = DefaultForeground;
         Console.BackgroundColor = DefaultBackground;
         Console.WriteLine("╰┯──────────────────┯─────────────────┯╯");
-        Console.WriteLine(" │ `Red|↓´ next character │ `Red|k´ill selected `Red|↲´ │".FormatANSI());
-        Console.WriteLine(" │ `Red|↑´ prev character │ `Red|c´ancel `Red|ESC´      │".FormatANSI());
+        Console.WriteLine(" │ `#c81e64|↓´ next character │ `#c81e64|k´ill selected `#c81e64|↲´ │".FormatANSI());
+        Console.WriteLine(" │ `#c81e64|↑´ prev character │ `#c81e64|c´ancel `#c81e64|ESC´      │".FormatANSI());
         Console.WriteLine(" ╰──────────────────┷─────────────────╯");
     }
 

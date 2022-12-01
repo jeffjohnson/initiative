@@ -87,8 +87,8 @@ public class RevivePCScreen : ScreenBase
         Console.ForegroundColor = DefaultForeground;
         Console.BackgroundColor = DefaultBackground;
         Console.WriteLine("╰┯──────────────────┯───────────────────┯╯");
-        Console.WriteLine(" │ `Red|↓´ next character │ `Red|r´evive selected `Red|↲´ │".FormatANSI());
-        Console.WriteLine(" │ `Red|↑´ prev character │ `Red|c´ancel `Red|ESC´        │".FormatANSI());
+        Console.WriteLine(" │ `#c81e64|↓´ next character │ `#c81e64|r´evive selected `#c81e64|↲´ │".FormatANSI());
+        Console.WriteLine(" │ `#c81e64|↑´ prev character │ `#c81e64|c´ancel `#c81e64|ESC´        │".FormatANSI());
         Console.WriteLine(" ╰──────────────────┷───────────────────╯");
     }
 

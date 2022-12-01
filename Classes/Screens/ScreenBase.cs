@@ -8,8 +8,8 @@ public class ScreenBase
     public static ConsoleColor SelectedForeground => ConsoleColor.Black;
     public static ConsoleColor DefaultBackground { get; set; }
     public static ConsoleColor DefaultForeground { get; set; }
-    public static ConsoleColor ErrorBackground => ConsoleColor.Red;
-    public static ConsoleColor ErrorForeground => ConsoleColor.Black;
+    public static ConsoleColor ErrorBackground => ConsoleColor.Black;
+    public static ConsoleColor ErrorForeground => ConsoleColor.Red;
     public static ConsoleColor DeadCombatantForegroundColor => ConsoleColor.DarkGray;
     public static ConsoleColor DeadCombatantBackgroundColor => DefaultBackground;
 
