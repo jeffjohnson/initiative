@@ -19,6 +19,7 @@ namespace Initiative
         private static KillMonsterScreen killMonsterScreen;
         private static KillPCScreen killPCScreen;
         private static RevivePCScreen revivePCScreen;
+        private static KillScreen killScreen;
         
         static void Main(string[] args)
         {
@@ -47,35 +48,22 @@ namespace Initiative
             
             screen = new InitiativeTrackerScreen(combat);
             screen.StartNewCombat += NewCombat;
-            screen.ShowKillMonsterScreen += ShowKillMonsterScreen;
-            screen.ShowKillPCScreen += ShowKillPCScreen;
+            screen.ShowKillScreen += ShowKillScreen;
             screen.ShowRevivePCScreen += ShowRevivePCScreen;
             screen.Exit += ExitApplication;
             screen.Show();
         }
 
-        private static void ShowKillMonsterScreen(object? sender, EventArgs e)
+        private static void ShowKillScreen(object? sender, ShowKillScreenEventArgs e)
         {
-            killMonsterScreen = new KillMonsterScreen(combat);
-            killMonsterScreen.Cancel += screen.KillCancel;
-            killMonsterScreen.KillMonster += (sender, args) =>
+            killScreen = new KillScreen(combat, CombatantType.Monster);
+            killScreen.Cancel += screen.KillCancel;
+            killScreen.KillCombatant += (sender, args) =>
             {
                 combat.KillCombatant(args.Combatant);
                 screen.Show();
             };
-            killMonsterScreen.Show();
-        }
-        
-        private static void ShowKillPCScreen(object? sender, EventArgs e)
-        {
-            killPCScreen = new KillPCScreen(combat);
-            killPCScreen.Cancel += screen.KillCancel;
-            killPCScreen.KillPC += (sender, args) =>
-            {
-                combat.KillCombatant(args.Combatant);
-                screen.Show();
-            };
-            killPCScreen.Show();
+            killScreen.Show();
         }
         
         private static void ShowRevivePCScreen(object? sender, EventArgs e)

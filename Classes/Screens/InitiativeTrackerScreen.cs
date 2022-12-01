@@ -57,14 +57,14 @@ public class InitiativeTrackerScreen : ScreenBase
                     break;
 
                 case ConsoleKey.K:
-                    var aliveMonsters = Combat.Monsters.Where(x => !x.IsDead);
+                    var aliveMonsters = Combat.Monsters.Where(x => x.IsDead != true);
                     if (!aliveMonsters.Any())
                     {
                         DrawError(Error.NoMonstersToKill);
                     }
                     else
                     {
-                        ShowKillMonsterScreen?.Invoke(this, System.EventArgs.Empty);
+                        ShowKillScreen?.Invoke(this, new ShowKillScreenEventArgs(CombatantType.Monster));
                     }
 
                     break;
@@ -78,14 +78,14 @@ public class InitiativeTrackerScreen : ScreenBase
                     break;
 
                 case ConsoleKey.P:
-                    var alivePCs = Combat.PCs.Where(x => !x.IsDead);
+                    var alivePCs = Combat.PCs.Where(x => x.IsDead != true);
                     if (!alivePCs.Any())
                     {
                         DrawError(Error.NoPCsToKill);
                     }
                     else
                     {
-                        ShowKillPCScreen?.Invoke(this, System.EventArgs.Empty);
+                        ShowKillScreen?.Invoke(this, new ShowKillScreenEventArgs(CombatantType.PC));
                     }
 
                     break;
@@ -401,8 +401,7 @@ public class InitiativeTrackerScreen : ScreenBase
     public event EventHandler<ExitEventArgs>? Exit;
     public event EventHandler<NewCombatEventArgs>? StartNewCombat; 
     public event EventHandler<ScreenOverflowEventArgs>? Overflow;
-    public event EventHandler? ShowKillMonsterScreen;
-    public event EventHandler? ShowKillPCScreen;
+    public event EventHandler<ShowKillScreenEventArgs>? ShowKillScreen;
     public event EventHandler? ShowRevivePCScreen;
     public event EventHandler<SelectedCombatantChangedEventArgs>? SelectedCombatantChanged;
 }
