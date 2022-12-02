@@ -69,6 +69,9 @@ public class InitiativeTrackerScreen : ScreenBase
 
                     break;
 
+                case ConsoleKey.M:
+                    ShowAddMonsterScreen?.Invoke(this, System.EventArgs.Empty);
+                    break;
 
                 case ConsoleKey.N:
                     StartNewCombat?.Invoke(this, new NewCombatEventArgs()
@@ -256,8 +259,15 @@ public class InitiativeTrackerScreen : ScreenBase
         if (SelectedCombatantId == FirstCombatantId)
         {
             if (Combat.Rounds.First().Key != Combat.CurrentRound.Number)
+            {
+                if (Combat.CurrentRound.Number > 10)
+                {
+                    ConsoleHelper.ClearColumns(rightColumn - COLUMN_WIDTH, rightColumn, bottomRow);
+                }
+                
                 Overflow?.Invoke(this, new ScreenOverflowEventArgs(OverflowDirection.Up));
-            
+            }
+
             return;
         } 
         
@@ -385,12 +395,6 @@ public class InitiativeTrackerScreen : ScreenBase
         }
     }
 
-    public void KillCancel(object? sender, System.EventArgs e)
-    {
-        // redraw everything
-        Show();
-    }
-
     private enum Error
     {
         NoMonstersToKill,
@@ -403,5 +407,6 @@ public class InitiativeTrackerScreen : ScreenBase
     public event EventHandler<ScreenOverflowEventArgs>? Overflow;
     public event EventHandler<ShowKillScreenEventArgs>? ShowKillScreen;
     public event EventHandler? ShowRevivePCScreen;
+    public event EventHandler? ShowAddMonsterScreen;
     public event EventHandler<SelectedCombatantChangedEventArgs>? SelectedCombatantChanged;
 }

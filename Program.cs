@@ -16,10 +16,9 @@ namespace Initiative
         
         private static Combat combat;
         private static InitiativeTrackerScreen screen;
-        private static KillMonsterScreen killMonsterScreen;
-        private static KillPCScreen killPCScreen;
         private static RevivePCScreen revivePCScreen;
         private static KillScreen killScreen;
+        private static AddMonsterScreen addMonsterScreen;
         
         static void Main(string[] args)
         {
@@ -32,7 +31,22 @@ namespace Initiative
                 PCs = pcs
             });
             
+            // Console.WriteLine("               0123456789012345678901234567890123456789012345678901234567890123456789");
+            // Console.Write("Input Testing: ");
+            // var txtTest = new TextInput(Console.CursorLeft, Console.CursorTop);
+            // txtTest.TextCursorPositionChanged += PrintExcessData;
+            // txtTest.Focus();
+            
             Process.GetCurrentProcess().WaitForExit();
+        }
+
+        private static void PrintExcessData(object? sender, TextCursorPositionChangedEventArgs e)
+        {
+            Console.SetCursorPosition(0, e.CursorTop + 5);
+            Console.WriteLine("                                                                          ");
+            Console.SetCursorPosition(0, e.CursorTop + 5);
+            Console.Write($"Text Cursor Position: {e.TextCursorPosition}, Value: [{new string(e.Value)}]");
+            Console.SetCursorPosition(e.CursorLeft, e.CursorTop);
         }
 
         private static void ExitApplication(object? sender, ExitEventArgs e)
@@ -50,32 +64,60 @@ namespace Initiative
             screen.StartNewCombat += NewCombat;
             screen.ShowKillScreen += ShowKillScreen;
             screen.ShowRevivePCScreen += ShowRevivePCScreen;
+            screen.ShowAddMonsterScreen += ShowAddMonsterScreen;
             screen.Exit += ExitApplication;
             screen.Show();
         }
 
         private static void ShowKillScreen(object? sender, ShowKillScreenEventArgs e)
         {
-            killScreen = new KillScreen(combat, CombatantType.Monster);
-            killScreen.Cancel += screen.KillCancel;
+            killScreen = new KillScreen(combat, e.type);
+            killScreen.Cancel += (sender, args) =>
+            {
+                screen.Show();
+            };
+            
             killScreen.KillCombatant += (sender, args) =>
             {
                 combat.KillCombatant(args.Combatant);
                 screen.Show();
             };
+            
             killScreen.Show();
         }
         
         private static void ShowRevivePCScreen(object? sender, EventArgs e)
         {
             revivePCScreen = new RevivePCScreen(combat);
-            revivePCScreen.Cancel += screen.KillCancel;
+            revivePCScreen.Cancel += (sender, args) =>
+            {
+                screen.Show();
+            };
+            
             revivePCScreen.RevivePc += (sender, args) =>
             {
                 combat.RevivePC(args.Combatant);
                 screen.Show();
             };
+            
             revivePCScreen.Show();
+        }
+
+        private static void ShowAddMonsterScreen(object? sender, EventArgs e)
+        {
+            addMonsterScreen = new AddMonsterScreen(combat);
+            addMonsterScreen.Cancel += (sender, args) =>
+            {
+                screen.Show();
+            };
+            
+            addMonsterScreen.SaveMonster += (sender, args) =>
+            {
+                combat.AddCombatant(args.Combatant);
+                screen.Show();
+            };
+            
+            addMonsterScreen.Show();
         }
     }
 }

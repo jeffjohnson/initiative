@@ -16,9 +16,9 @@ public class Round
         RemoveDuplicateInitiatives();
     }
 
-    public void AddCombatant(Combatant combatant)
+    public void AddCombatant(Combatant combatant, int initiative)
     {
-        Initiatives.Add(new CombatantInitiative(combatant.Id, combatant.RollInitiative()));
+        Initiatives.Add(new CombatantInitiative(combatant.Id, initiative));
         Initiatives = Initiatives
             .OrderByDescending(x => x.Initiative)
             .ToList();

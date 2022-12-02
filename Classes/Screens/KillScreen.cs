@@ -5,6 +5,7 @@ namespace Initiative.Classes.Screens;
 
 public class KillScreen : ScreenBase
 {
+    bool disposed = false;
     private readonly CombatantType type;
     private Combat Combat { get; set; }
     private List<Combatant> Combatants { get; set; }
@@ -41,18 +42,68 @@ public class KillScreen : ScreenBase
             case CombatantType.Monster:
                 windowHeader = "Kill Monster";
                 break;
-            
+
             case CombatantType.PC:
                 windowHeader = "Kill PC";
                 break;
         }
-            
+
         Console.WriteLine($"╭─{"─".PadLeft(windowHeader.Length, '─')}─╮");
-        Console.WriteLine($"│ {windowHeader} ╰───────────────────────╮");
-        Console.WriteLine($"├─{"─".PadLeft(windowHeader.Length, '─')}─────────────────────────┤");
+        Console.WriteLine($"│ {windowHeader} ╰{"─".PadLeft(35 - windowHeader.Length, '─')}╮");
+        Console.WriteLine($"├─{"─".PadLeft(37, '─')}┤");
+
+        DrawShell();
+        DrawCombatants();
+        Listen();
+    }
+
+    private void DrawShell()
+    {
+        Console.SetCursorPosition(0, 3);
+        Console.ForegroundColor = DefaultForeground;
+        Console.BackgroundColor = DefaultBackground;
         
-        Redraw();
-        
+        foreach (var combatant in Combatants.Where(x => x.IsDead != true))
+        {
+            var pos = Console.GetCursorPosition();
+            Console.WriteLine("│                                      │");
+        }
+
+        Console.ForegroundColor = DefaultForeground;
+        Console.BackgroundColor = DefaultBackground;
+        Console.WriteLine("╰┯──────────────────┯─────────────────┯╯");
+        Console.WriteLine(" │ `#c81e64|↓´ next combatant │ `#c81e64|k´ill selected `#c81e64|↲´ │".FormatANSI());
+        Console.WriteLine(" │ `#c81e64|↑´ prev combatant │ `#c81e64|c´ancel `#c81e64|ESC´      │".FormatANSI());
+        Console.WriteLine(" ╰──────────────────┷─────────────────╯");
+    }
+
+    private void DrawCombatants()
+    {
+        Console.SetCursorPosition(0, 3);
+
+        foreach (var combatant in Combatants.Where(x => x.IsDead != true))
+        {
+            var pos = Console.GetCursorPosition();
+            Console.ForegroundColor = DefaultForeground;
+            Console.BackgroundColor = DefaultBackground;
+
+            // change background current combatant is selected
+            if (combatant.Id == SelectedId)
+            {
+                Console.ForegroundColor = SelectedForeground;
+                Console.BackgroundColor = SelectedBackground;
+            }
+            
+            Console.SetCursorPosition(1, pos.Top);
+            Console.Write("                                      ");
+            Console.SetCursorPosition(2, pos.Top);
+            Console.Write($"{combatant.Name}");
+            Console.Write(Environment.NewLine);
+        }
+    }
+
+    private void Listen()
+    {
         var action = new ConsoleKeyInfo();
         while (action.Key != ConsoleKey.F24)
         {
@@ -69,10 +120,9 @@ public class KillScreen : ScreenBase
                    
                 case ConsoleKey.K:
                 case ConsoleKey.Enter:
-                    KillCombatant?.Invoke(this, new KillEventArgs()
-                    {
-                        Combatant = Combatants.First(x => x.Id == SelectedId)
-                    });
+                    KillCombatant?.Invoke(this,
+                        new SpecifyCombatantEventArgs(Combatants.First(x => x.Id == SelectedId)));
+
                     break;
                 
                 case ConsoleKey.C:
@@ -81,43 +131,6 @@ public class KillScreen : ScreenBase
                     break;
             }
         }
-    }
-
-    private void Redraw()
-    {
-        Console.SetCursorPosition(0, 3);
-        var combatants = Combatants.Where(x => x.IsDead != true).ToList();
-
-        foreach (var combatant in combatants)
-        {
-            var pos = Console.GetCursorPosition();
-            Console.ForegroundColor = DefaultForeground;
-            Console.BackgroundColor = DefaultBackground;
-
-            Console.Write("│                                      │");
-            
-            // change background current combatant is selected
-            if (combatant.Id == SelectedId)
-            {
-                Console.ForegroundColor = SelectedForeground;
-                Console.BackgroundColor = SelectedBackground;
-                pos = Console.GetCursorPosition();
-                Console.SetCursorPosition(2, pos.Top);
-                Console.Write("                                   ");
-            }
-            
-            Console.SetCursorPosition(2, pos.Top);
-
-            Console.Write($"{combatant.Name}");
-            Console.Write(Environment.NewLine);
-        }
-
-        Console.ForegroundColor = DefaultForeground;
-        Console.BackgroundColor = DefaultBackground;
-        Console.WriteLine("╰┯──────────────────┯─────────────────┯╯");
-        Console.WriteLine(" │ `#c81e64|↓´ next combatant │ `#c81e64|k´ill selected `#c81e64|↲´ │".FormatANSI());
-        Console.WriteLine(" │ `#c81e64|↑´ prev combatant │ `#c81e64|c´ancel `#c81e64|ESC´      │".FormatANSI());
-        Console.WriteLine(" ╰──────────────────┷─────────────────╯");
     }
 
     private void SelectPrevious()
@@ -131,7 +144,7 @@ public class KillScreen : ScreenBase
         var ix = Array.IndexOf(aliveCombatants, SelectedId);
         SelectedId = aliveCombatants[ix - 1];
         
-        Redraw();
+        DrawCombatants();
     }
 
     private void SelectNext()
@@ -145,9 +158,9 @@ public class KillScreen : ScreenBase
         var ix = Array.IndexOf(aliveCombatants, SelectedId);
         SelectedId = aliveCombatants[ix + 1];
         
-        Redraw();
+        DrawCombatants();
     }
     
-    public event EventHandler<EventArgs.KillEventArgs>? KillCombatant;
+    public event EventHandler<SpecifyCombatantEventArgs>? KillCombatant;
     public event EventHandler? Cancel;
 }

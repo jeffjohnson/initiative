@@ -43,7 +43,14 @@ public class Combat
             combatant.Id = identity.Next;
         
         Combatants.Add(combatant);
-        rounds.Last().Value.AddCombatant(combatant);
+        foreach (var round in rounds)
+        {
+            var initiative = 0;
+            if (round.Key == CurrentRound.Number)
+                initiative = combatant.RollInitiative();
+            
+            round.Value.AddCombatant(combatant, initiative);
+        }
         
         DataChanged?.Invoke(this, new CombatDataChangedEventArgs(
             combatant.IsMonster ? CombatDataChangeType.MonsterAdded : CombatDataChangeType.PCAdded,

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Initiative.Classes.Screens;
 
 namespace Initiative.Classes;
 
@@ -32,5 +33,16 @@ public static class ConsoleHelper
 
 
         return value.ToString();
+    }
+
+    public static void ClearColumns(int fromColumn, int toColumn, int height)
+    {
+        Console.ForegroundColor = ScreenBase.DefaultForeground;
+        Console.BackgroundColor = ScreenBase.DefaultBackground;
+        for (var i = 0; i < height; i++)
+        {
+            Console.SetCursorPosition(fromColumn, i);
+            Console.Write(" ".PadLeft(toColumn - fromColumn, ' '));
+        }
     }
 }

@@ -23,5 +23,7 @@ public class ScreenBase
     {
         Console.Clear();
         Console.SetCursorPosition(0,0);
+        Console.ForegroundColor = DefaultForeground;
+        Console.BackgroundColor = DefaultBackground;
     }
 }
